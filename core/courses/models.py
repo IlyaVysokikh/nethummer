@@ -27,6 +27,25 @@ class Course(models.Model):
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses')
     price = models.PositiveIntegerField(default=0, verbose_name='Стоимость курса')
+    description = models.TextField(blank=True, null=True, verbose_name='Описание')
+    requirements = models.TextField(blank=True, null=True, verbose_name='Требования')
+    is_active = models.BooleanField(default=False, verbose_name='Открыть курс')
+    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0, verbose_name='Рейтинг')
+
+    def __str__(self):
+        return f'Курс {self.title}. Преподаватель {self.tutor}'
+
+    def get_students_count(self):
+        return self.students.count()
+
+    def update_rating(self):
+        # Обновление рейтинга курса на основе отзывов
+        reviews = Review.objects.filter(course=self)
+        if reviews.exists():
+            sum_rating = sum([reviews.rating for review in reviews])
+            avg_rating = sum_rating / len(reviews)
+            self.rating = avg_rating
+            self.save()
 
 
 class Module(models.Model):
@@ -65,3 +84,14 @@ class Image(ItemBase):
 
 class Video(ItemBase):
     url = models.URLField()
+
+
+class Review(models.Model):
+    """Модель отзыва о курсе"""
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='review')
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='student')
+    text = models.TextField(blank=True, null=True, verbose_name='Текст отзыва')
+    rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name='Оценка')
+
+    def __str__(self):
+        return f'Отзыв на курс {self.course.title} пользователя {self.student.username}'
