@@ -13,6 +13,10 @@ class Category(models.Model):
 
 
 class Course(models.Model):
+    lang = (
+        ('en', 'Английский'),
+        ('ru', 'Русский'),
+    )
     title = models.CharField(max_length=150)
     tutor = models.ForeignKey(
         CustomUser,
@@ -20,17 +24,13 @@ class Course(models.Model):
         verbose_name='Преподаватель',
         related_name='tutor_courses'
     )
-    students = models.ManyToManyField(
-        CustomUser,
-        verbose_name='Студенты',
-        related_name='students_courses'
-    )
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='courses')
     price = models.PositiveIntegerField(default=0, verbose_name='Стоимость курса')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     requirements = models.TextField(blank=True, null=True, verbose_name='Требования')
     is_active = models.BooleanField(default=False, verbose_name='Открыть курс')
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0, verbose_name='Рейтинг')
+    language = models.CharField(max_length=2, choices=lang, verbose_name='Язык обучения', null=True)
 
     def __str__(self):
         return f'Курс {self.title}. Преподаватель {self.tutor}'
@@ -46,6 +46,14 @@ class Course(models.Model):
             avg_rating = sum_rating / len(reviews)
             self.rating = avg_rating
             self.save()
+
+
+class StudentsCourses(models.Model):
+    student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='Студент')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='Курс')
+
+    def __str__(self):
+        return f'Пользователь {self.student.username} записан на {self.course.title}'
 
 
 class Module(models.Model):
@@ -92,6 +100,7 @@ class Review(models.Model):
     student = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='student')
     text = models.TextField(blank=True, null=True, verbose_name='Текст отзыва')
     rating = models.PositiveIntegerField(choices=[(i, i) for i in range(1, 6)], verbose_name='Оценка')
+
 
     def __str__(self):
         return f'Отзыв на курс {self.course.title} пользователя {self.student.username}'
