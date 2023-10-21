@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'djoser',
     'drf_yasg',
+    'oauth2_provider',
+    'social_django',
+    'rest_framework_social_oauth2',
 
     'accounts',
     'courses',
@@ -143,6 +146,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework_social_oauth2.authentication.SocialAuthentication',
     ),
 }
 
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '51775694'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'xaSRuY2ty220bQj3UKdN'
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.vk.VKOAuth2',
+    'rest_framework_social_oauth2.backends.DjangoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)

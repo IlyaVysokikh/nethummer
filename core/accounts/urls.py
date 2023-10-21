@@ -6,4 +6,5 @@ from .views import *
 urlpatterns = [
     re_path(r'^auth/', include('djoser.urls')),
     re_path(r'^auth/', include('djoser.urls.authtoken')),
+    re_path(r'^auth/', include('rest_framework_social_oauth2.urls')),
 ]
