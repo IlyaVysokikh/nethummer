@@ -9,5 +9,6 @@ admin.site.register(Content)
 admin.site.register(File)
 admin.site.register(Image)
 admin.site.register(Review)
+admin.site.register(StudentsCourses)
 
 
