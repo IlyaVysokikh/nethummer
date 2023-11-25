@@ -1,6 +1,4 @@
 from django.db import models
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
 
 from accounts.models import CustomUser
 
@@ -30,7 +28,7 @@ class Course(models.Model):
     requirements = models.TextField(blank=True, null=True, verbose_name='Требования')
     is_active = models.BooleanField(default=False, verbose_name='Открыть курс')
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0, verbose_name='Рейтинг')
-    language = models.CharField(max_length=2, choices=lang, verbose_name='Язык обучения', null=True)
+    language = models.CharField(max_length=2, choices=lang, verbose_name='Язык обучения')
 
     def __str__(self):
         return f'Курс {self.title}. Преподаватель {self.tutor}'
@@ -62,36 +60,32 @@ class Module(models.Model):
     description = models.TextField(blank=True)
 
 
-class Content(models.Model):
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='contents')
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, related_name='contents')
-    object_id = models.PositiveIntegerField()
-    item = GenericForeignKey('content_type', 'object_id')
+class Lesson(models.Model):
+    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='lessons')
+    title = models.CharField(max_length=150)
 
 
-class ItemBase(models.Model):
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='%(class)s_related')
-    title = models.CharField(max_length=250)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+class TextContent(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='text_contents')
+    text = models.TextField(blank=True, null=True)
 
     class Meta:
-        abstract = True
-
-    def __str__(self):
-        return self.title
+        verbose_name = 'Текстовый контент'
+        verbose_name_plural = 'Текстовый контент'
 
 
-class File(ItemBase):
-    file = models.FileField(upload_to='files')
+class VideoContent(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='video_contents')
+    video_url = models.URLField(blank=True, null=True, verbose_name='Ссылка на видео')
+
+    class Meta:
+        verbose_name = 'Видеоконтент'
+        verbose_name_plural = 'Видеоконтент'
 
 
-class Image(ItemBase):
-    file = models.ImageField(upload_to='images')
-
-
-class Video(ItemBase):
-    url = models.URLField()
+class ImageContent(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='image_contents')
+    image = models.ImageField(upload_to='media/lessons_images/')
 
 
 class Review(models.Model):

@@ -1,4 +1,4 @@
-# Образовательная платформа сделанная на Django rest framework
+# API для образовательной платформы на Django rest framework
 
 ## Инструменты
 - Python >= 3.9 

@@ -1,7 +1,6 @@
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
-from rest_framework.generics import ListAPIView, RetrieveAPIView, GenericAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -10,92 +9,43 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 from .permissions import *
+from .base_classes.views import *
 
 
-class CourseAPIView(APIView):
+class CourseAPIView(BaseAPIView):
+    model = Course
     serializer_class = CourseSerializer
     permission_classes = [IsOwnerOrAdmin]
 
-    def get_course(self, pk):
-        try:
-            return Course.objects.get(id=pk)
-        except:
-            return None
 
-    def get(self, request, *args, **kwargs):
-        course = self.get_course(pk=kwargs['pk'])
-
-        if not course:
-            return Response({
-                'status': 'fail',
-                'message': f'Курс с id = {kwargs["pk"]} не найден'
-            },
-                status=status.HTTP_404_NOT_FOUND
-            )
-        serializer = self.serializer_class(course)
-
-        return Response({
-            'status': 'success',
-            'course': serializer.data
-        },
-            status=status.HTTP_200_OK
-        )
-
-    def put(self, request, pk):
-        course = self.get_course(pk)
-
-        if not course:
-            return Response({
-                'status': 'fail',
-                'message': f'Курс с id = {pk} не найден'
-            },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        serializer = self.serializer_class(course, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'status': 'success',
-                'course': serializer.data
-            }, status=status.HTTP_200_OK)
-        return Response({
-            'status': 'fail',
-            'message': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk):
-        course = self.get_course(pk)
-
-        if not course:
-            return Response({
-                'status': 'fail',
-                'message': f'Курс с id = {pk} не найден'
-            },
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-        course.delete()
-        return Response(status.HTTP_204_NO_CONTENT)
+class ModuleAPIView(BaseAPIView):
+    model = Module
+    permission_classes = [IsOwnerOrAdmin]
+    serializer_class = ModuleSerializer
 
 
-class CourseListAPIView(ListAPIView):
-    serializer_class = ListCourseSerializer
+class LessonAPIView(BaseAPIView):
+    model = Lesson
+    permission_classes = [IsOwnerOrAdmin]
+    serializer_class = LessonSerializer
 
-    def get_queryset(self):
-        category = self.request.query_params.get('category')
-        queryset = Course.objects.filter(is_active=True)
 
-        if category:
-            queryset = queryset.filter(category=category)
+class TextContentAPIView(BaseAPIView):
+    model = TextContent
+    serializer_class = TextContentSerializer
+    permission_classes = (IsOwnerOrAdmin)
 
-        return queryset
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+class ImageContentAPIView(BaseAPIView):
+    model = ImageContent
+    serializer_class = ImageContentSerializer
+    permission_classes = (IsOwnerOrAdmin)
+
+
+class VideoContentAPIView(BaseAPIView):
+    model = VideoContent
+    serializer_class = VideoContent
+    permission_classes = (IsOwnerOrAdmin)
 
 
 class EnrollCourseAPIView(APIView):
@@ -106,12 +56,17 @@ class EnrollCourseAPIView(APIView):
         course = get_object_or_404(Course, id=id)
         enrollment, created = StudentsCourses.objects.get_or_create(student=request.user, course=course)
         serializer = self.serializer_class(enrollment)
-        return Response({'enrollment_created': created, 'data': serializer.data})
+        return Response({
+            'enrollment_created': created,
+            'data': serializer.data
+              })
 
     def delete(self, request, id):
         enrollment = get_object_or_404(StudentsCourses, id=id)
         enrollment.delete()
-        return Response({'unenrolled': True}, status=status.HTTP_204_NO_CONTENT)
+        return Response({
+            'unenrolled': True
+            }, status=status.HTTP_204_NO_CONTENT)
 
 
 class StudentsCoursesListAPIView(ListAPIView):
@@ -126,3 +81,42 @@ class StudentsCoursesListAPIView(ListAPIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
+
+
+class CourseListAPIView(BaseListAPIView):
+    model = Course
+    serializer_class = CourseSerializer
+
+    def get_queryset(self):
+        category = self.request.query_params.get('category')
+        queryset = Course.objects.filter(is_active=True)
+
+        if category:
+            queryset = queryset.filter(category=category)
+
+        return queryset
+
+
+class ModuleListAPIView(BaseListAPIView):
+    model = Module
+    serializer_class = ModuleSerializer
+
+
+class LessonListAPIView(BaseListAPIView):
+    model = Lesson
+    serializer_class = LessonSerializer
+
+
+class VideoContentListAPIView(BaseListAPIView):
+    model = VideoContent
+    serializer_class = VideoContentSerializer
+
+
+class ImageContentListAPIView(ListAPIView):
+    model = ImageContent
+    serializer_class = ImageContentSerializer
+
+
+class TextContentListAPIView(ListAPIView):
+    model = TextContent
+    serializer_class = TextContentSerializer

@@ -5,9 +5,10 @@ from .models import *
 admin.site.register(Course)
 admin.site.register(Category)
 admin.site.register(Module)
-admin.site.register(Content)
-admin.site.register(File)
-admin.site.register(Image)
+admin.site.register(Lesson)
+admin.site.register(ImageContent)
+admin.site.register(TextContent)
+admin.site.register(VideoContent)
 admin.site.register(Review)
 admin.site.register(StudentsCourses)
 

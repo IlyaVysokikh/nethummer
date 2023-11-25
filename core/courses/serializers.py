@@ -3,25 +3,49 @@ from rest_framework import serializers
 from .models import *
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = '__all__'
-
-
-class ListCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ('id', 'title', 'price', 'is_active', 'rating', 'language')
-
-
 class StudentsCoursesSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentsCourses
         fields = '__all__'
+        
+
+class LessonSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Lesson
+        fields = '__all__'
 
 
-class LIstModuleSerializer(serializers.ModelSerializer):
+class ModuleSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Module
-        fields = ('id', 'title', 'description')
+        fields = '__all__'
+
+
+class CourseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+
+class TextContentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TextContent
+        fields = '__all__'
+
+
+class VideoContentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = VideoContent
+        fields = '__all__'
+
+
+class ImageContentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ImageContent
+        fields = '__all__'
