@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { faVk } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-
+import axios from 'axios';
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -69,17 +69,6 @@ const RegistrationPage = () => {
               value={formData.password}
               onChange={handleInputChange}
               style={{ marginBottom: '10px' }}
-              required
-            />
-          </Form.Group>
-
-          <Form.Group controlId="formPassword">
-            <Form.Control
-              type="password"
-              placeholder="Введите повторный пароль"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
               required
             />
           </Form.Group>
